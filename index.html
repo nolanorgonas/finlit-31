@@ -124,8 +124,7 @@
 
         <!-- Question Card -->
         <article id="quiz-card" class="glass-card rounded-xl p-7 shadow-2xl relative overflow-hidden">
-            <i class="fas fa-chart-pie absolute -bottom-4 -right-4 text-white/[0.03] text-8xl" aria-hidden="true"></i>
-
+            <!-- Pit/Chart icon removed as requested -->
             <div class="flex justify-between items-center mb-6 relative z-10">
                 <span id="date-label" class="text-[10px] font-bold uppercase tracking-widest text-slate-300">Mar 05 • Module 14</span>
                 <span id="category-tag" class="bg-red-950/40 text-red-200 border border-red-500/30 px-2 py-0.5 rounded text-[9px] font-bold uppercase">Finance</span>
@@ -161,20 +160,26 @@
             <p class="text-xs text-slate-400 uppercase tracking-widest mb-6 font-bold italic">College of Business Edition</p>
             
             <div class="space-y-5 text-slate-200 mb-8 text-sm">
-                <div class="flex gap-4 items-start">
-                    <div class="bg-red-900/30 p-2 rounded text-red-400" aria-hidden="true"><i class="fas fa-calendar-check"></i></div>
+                <div class="flex gap-4 items-center">
+                    <div class="bg-red-900/30 flex items-center justify-center shrink-0 w-10 h-10 rounded text-red-400" aria-hidden="true">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
                     <p>Master one core financial competency every day for 31 days.</p>
                 </div>
-                <div class="flex gap-4 items-start">
-                    <div class="bg-red-900/30 p-2 rounded text-red-400" aria-hidden="true"><i class="fas fa-fire-alt"></i></div>
+                <div class="flex gap-4 items-center">
+                    <div class="bg-red-900/30 flex items-center justify-center shrink-0 w-10 h-10 rounded text-red-400" aria-hidden="true">
+                        <i class="fas fa-fire-alt"></i>
+                    </div>
                     <p>Maintain your professional streak by answering correctly on your first attempt.</p>
                 </div>
-                <div class="flex gap-4 items-start">
-                    <div class="bg-red-900/30 p-2 rounded text-red-400" aria-hidden="true"><i class="fas fa-graduation-cap"></i></div>
+                <div class="flex gap-4 items-center">
+                    <div class="bg-red-900/30 flex items-center justify-center shrink-0 w-10 h-10 rounded text-red-400" aria-hidden="true">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
                     <p>Designed for future leaders to sharpen fiscal decision-making skills.</p>
                 </div>
             </div>
-            <button id="close-modal" class="w-full py-3.5 bg-cob hover:bg-red-800 text-white transition-colors rounded-lg font-bold focus:ring-4 focus:ring-red-500">Begin Session</button>
+            <button id="close-modal" class="w-full py-3.5 bg-cob border-2 border-red-500/50 hover:bg-red-800 text-white transition-colors rounded-xl font-bold focus:ring-4 focus:ring-red-500">Begin Session</button>
         </div>
     </div>
 
