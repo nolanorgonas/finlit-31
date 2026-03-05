@@ -314,9 +314,9 @@
             document.getElementById('feedback-icon').innerText = isCorrect ? "📊" : "⚖️";
             document.getElementById('feedback-explanation').innerText = currentQuestion.exp;
             
-            // Allow time for DOM update then scroll
+            // Reduced auto-scroll behavior to only move if necessary
             setTimeout(() => {
-                feedbackArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                feedbackArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }, 300);
         }
 
