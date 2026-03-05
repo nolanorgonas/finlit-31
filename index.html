@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinLit 31 - Daily Financial Literacy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .option-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .option-btn:active {
+            transform: scale(0.98);
+        }
+
+        .correct {
+            background-color: #059669 !important;
+            border-color: #10b981 !important;
+        }
+
+        .wrong {
+            background-color: #dc2626 !important;
+            border-color: #ef4444 !important;
+        }
+
+        @keyframes bounce-subtle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .animate-bounce-subtle {
+            animation: bounce-subtle 2s infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4">
+
+    <!-- Header -->
+    <header class="w-full max-w-md flex justify-between items-center py-6 mb-4">
+        <div class="flex items-center gap-2">
+            <div class="bg-emerald-500 p-2 rounded-lg">
+                <i class="fas fa-chart-line text-white"></i>
+            </div>
+            <h1 class="text-2xl font-extrabold tracking-tight">FINLIT <span class="text-emerald-400">31</span></h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-1">
+                <i class="fas fa-fire text-orange-500"></i>
+                <span id="streak-display" class="font-bold">0</span>
+            </div>
+            <button id="info-btn" class="text-slate-400 hover:text-white">
+                <i class="far fa-question-circle text-xl"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Game Area -->
+    <main id="game-container" class="w-full max-w-md flex flex-col gap-6">
+        
+        <!-- Progress Bar -->
+        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+            <div id="progress-bar" class="bg-emerald-500 h-full transition-all duration-1000" style="width: 0%"></div>
+        </div>
+
+        <!-- Question Card -->
+        <div id="quiz-card" class="glass-card rounded-2xl p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <span id="date-label" class="text-xs font-bold uppercase tracking-widest text-slate-400">March 14 • Day 14/31</span>
+                <span id="category-tag" class="bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-[10px] font-bold uppercase">Investing</span>
+            </div>
+            
+            <h2 id="question-text" class="text-xl font-semibold leading-snug mb-8 text-slate-100">
+                Loading today's challenge...
+            </h2>
+
+            <div id="options-grid" class="grid gap-3">
+                <!-- Options injected here -->
+            </div>
+        </div>
+
+        <!-- Feedback Area (Hidden by default) -->
+        <div id="feedback-area" class="hidden glass-card border-emerald-500/30 rounded-2xl p-6 text-center">
+            <div id="feedback-icon" class="text-4xl mb-2">🎉</div>
+            <h3 id="feedback-title" class="text-xl font-bold mb-2">Brilliant!</h3>
+            <p id="feedback-explanation" class="text-slate-400 text-sm leading-relaxed mb-6">
+                Compound interest is the eighth wonder of the world. He who understands it, earns it; he who doesn't, pays it.
+            </p>
+            <button id="share-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-colors">
+                <i class="fas fa-share-alt"></i> Share Results
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Modal for Help/About -->
+    <div id="modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-6">
+        <div class="glass-card max-w-sm w-full rounded-2xl p-8">
+            <h2 class="text-2xl font-bold mb-4">How to Play</h2>
+            <ul class="text-slate-300 space-y-4 mb-8">
+                <li class="flex gap-3"><span class="text-emerald-400 font-bold">1.</span> One new question every day for 31 days.</li>
+                <li class="flex gap-3"><span class="text-emerald-400 font-bold">2.</span> Build your streak by answering correctly on the first try.</li>
+                <li class="flex gap-3"><span class="text-emerald-400 font-bold">3.</span> Learn one key financial concept daily.</li>
+            </ul>
+            <button id="close-modal" class="w-full py-3 bg-slate-700 rounded-xl font-bold">Got it!</button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-8 bg-white text-slate-900 px-6 py-3 rounded-full font-bold shadow-xl translate-y-24 transition-transform duration-300 z-50">
+        Copied to clipboard!
+    </div>
+
+    <script>
+        // --- DATA: 31 Daily Questions ---
+        const questions = [
+            { q: "What is 'Compound Interest'?", a: ["Interest earned on both principal and accumulated interest", "Interest earned only on the initial principal", "A flat fee for borrowing money", "The total cost of a loan over 30 years"], c: 0, cat: "Basics", exp: "Compound interest is when the interest you earn on your savings begins to earn interest on itself." },
+            { q: "Which of these is a 'Liquid Asset'?", a: ["Real Estate", "A 401(k) retirement account", "Cash in a savings account", "A vintage car collection"], c: 2, cat: "Banking", exp: "Liquidity refers to how quickly an asset can be converted into cash without losing value." },
+            { q: "What does the 'Rule of 72' estimate?", a: ["How long it takes to pay off a mortgage", "How long it takes for an investment to double", "Your ideal retirement age", "The maximum tax bracket"], c: 1, cat: "Investing", exp: "Divide 72 by your interest rate to see how many years it takes for your money to double." },
+            { q: "A 'FICO Score' primarily measures what?", a: ["Your annual income", "Your net worth", "Your creditworthiness", "Your total assets"], c: 2, cat: "Credit", exp: "FICO scores are used by lenders to determine how likely you are to repay a loan." },
+            { q: "What is an 'Index Fund'?", a: ["A fund that tracks a specific market benchmark", "A fund managed by a single day trader", "A high-risk crypto-currency", "A government savings bond"], c: 0, cat: "Investing", exp: "Index funds aim to match the performance of a specific market index like the S&P 500." },
+            { q: "What is 'Inflation'?", a: ["When the value of money increases", "When the purchasing power of money decreases", "When taxes are lowered", "When stock prices remain flat"], c: 1, cat: "Economics", exp: "Inflation means your money buys fewer goods and services than it did previously." },
+            { q: "Which insurance is mandatory for car owners in most states?", a: ["Life Insurance", "Liability Insurance", "Pet Insurance", "Disability Insurance"], c: 1, cat: "Insurance", exp: "Liability insurance covers damages you cause to others in an accident." },
+            { q: "A 'Bull Market' indicates what?", a: ["Falling stock prices", "Rising stock prices", "A stable market", "High unemployment"], c: 1, cat: "Investing", exp: "A Bull market is characterized by investor optimism and rising asset prices." },
+            { q: "What is 'Diversification'?", a: ["Investing all money in one stock", "Spreading investments across different assets", "Keeping all money in a mattress", "Only buying tech stocks"], c: 1, cat: "Investing", exp: "Diversification reduces risk by ensuring you aren't over-exposed to one single failure." },
+            { q: "What is a '401(k)'?", a: ["A type of mortgage", "An employer-sponsored retirement plan", "A student loan", "A tax-free savings account for kids"], c: 1, cat: "Retirement", exp: "A 401(k) is a retirement savings plan that offers tax advantages to the saver." },
+            { q: "What is the 'Spread' in banking?", a: ["The physical size of a bank branch", "The difference between interest paid to savers and charged to borrowers", "The marketing budget of a bank", "The distance between ATMs"], c: 1, cat: "Banking", exp: "Banks make money by charging more for loans than they pay out on deposits." },
+            { q: "Which is a 'Fixed Expense'?", a: ["Monthly Rent", "Dining Out", "Movie Tickets", "New Clothes"], c: 0, cat: "Budgeting", exp: "Fixed expenses remain the same cost every month, making them easier to budget for." },
+            { q: "What does 'APY' stand for?", a: ["Annual Percentage Yield", "Actual Price Yearly", "Average Profit Yield", "Annual Payment Yield"], c: 0, cat: "Banking", exp: "APY tells you the real rate of return on a savings account, including compounding." },
+            { q: "A 'Bond' is essentially a...", a: ["Share of ownership", "A loan you make to a government or company", "A type of insurance", "A credit card"], c: 1, cat: "Investing", exp: "When you buy a bond, you are lending money to the issuer in exchange for interest." },
+            { q: "What is 'Net Worth'?", a: ["Total Assets minus Total Liabilities", "Total Salary per year", "The amount of cash in your wallet", "Your credit score"], c: 0, cat: "Planning", exp: "Net worth is the value of everything you own minus everything you owe." },
+            { q: "What is 'Capital Gains' tax?", a: ["Tax on your hourly wage", "Tax on the profit from selling an asset", "A tax on imported goods", "A local property tax"], c: 1, cat: "Taxes", exp: "You pay capital gains tax when you sell an investment (like a stock) for more than you paid." },
+            { q: "What is a 'Dividend'?", a: ["A penalty for late payment", "A portion of company profits paid to shareholders", "A type of bank fee", "The interest on a credit card"], c: 1, cat: "Investing", exp: "Dividends are a way companies share their success directly with their investors." },
+            { q: "Which typically has the highest interest rate?", a: ["Mortgage", "Savings Account", "Credit Card Debt", "Auto Loan"], c: 2, cat: "Credit", exp: "Credit cards often carry very high interest rates compared to secured loans like mortgages." },
+            { q: "What is 'Dollar-Cost Averaging'?", a: ["Investing the same amount regularly regardless of price", "Trying to time the market perfectly", "Only buying when prices are at their lowest", "Converting USD to Euros"], c: 0, cat: "Investing", exp: "DCA reduces the impact of volatility by spreading out your purchases over time." },
+            { q: "What is a 'Bear Market'?", a: ["Market prices rising 20%", "Market prices falling 20% or more", "Market is closed for a holiday", "A market only for professional traders"], c: 1, cat: "Investing", exp: "A Bear market is marked by falling prices and widespread pessimism." },
+            { q: "What is 'Escrow'?", a: ["A type of boat", "Money held by a third party during a transaction", "A luxury tax", "A retirement fund"], c: 1, cat: "Real Estate", exp: "Escrow protects both buyers and sellers by holding funds until conditions are met." },
+            { q: "What does 'Phishing' mean in finance?", a: ["Saving money for a fishing trip", "Fraudulent attempts to obtain sensitive info", "Lowering interest rates", "Selling stocks too early"], c: 1, cat: "Security", exp: "Phishing is a scam where criminals pretend to be a trusted entity to steal your data." },
+            { q: "What is a 'Roth IRA'?", a: ["Tax-deferred retirement account", "After-tax retirement account with tax-free withdrawals", "A student loan", "A high-interest savings account"], c: 1, cat: "Retirement", exp: "In a Roth IRA, you pay taxes upfront, but your money grows and is withdrawn tax-free." },
+            { q: "What is 'Volatility'?", a: ["The speed at which a bank opens", "The frequency and magnitude of price changes", "The total number of stocks in a fund", "A tax on volatile chemicals"], c: 1, cat: "Investing", exp: "High volatility means an asset's price swings wildly in short periods." },
+            { q: "What is 'Principal'?", a: ["The head of a school", "The original amount of money invested or borrowed", "The interest earned", "The bank manager"], c: 1, cat: "Basics", exp: "The principal is the 'base' amount of money before interest or fees are added." },
+            { q: "What is an 'ETF'?", a: ["Exchange-Traded Fund", "Electronic Transfer Fee", "Estimated Tax Fund", "Equity Total Fund"], c: 0, cat: "Investing", exp: "ETFs are similar to mutual funds but are traded on stock exchanges like individual stocks." },
+            { q: "What is 'Overdraft'?", a: ["Spending more money than is in your account", "A breeze in a bank lobby", "A high credit limit", "A bonus from the bank"], c: 0, cat: "Banking", exp: "Overdrafting usually results in high fees from your financial institution." },
+            { q: "What is 'Amortization'?", a: ["Increasing a debt over time", "Paying off a debt in regular installments over time", "A type of life insurance", "The process of getting a credit card"], c: 1, cat: "Loans", exp: "Amortization schedules show how each payment is split between principal and interest." },
+            { q: "What is a 'Fiduciary'?", a: ["A professional required to act in your best interest", "A bank teller", "A type of stock market robot", "An IRS agent"], c: 0, cat: "Planning", exp: "A fiduciary has a legal and ethical obligation to put your financial needs before their own." },
+            { q: "What is 'Collateral'?", a: ["A partner in a business", "An asset used to secure a loan", "A type of bank vault", "The interest on a loan"], c: 1, cat: "Loans", exp: "If a borrower fails to pay, the lender can seize the collateral (like a house for a mortgage)." },
+            { q: "What is 'Hyperinflation'?", a: ["Extremely rapid, out-of-control inflation", "A small rise in prices", "Inflation that only affects gas", "When prices stay exactly the same"], c: 0, cat: "Economics", exp: "Hyperinflation can cause a currency to become practically worthless in a very short time." }
+        ];
+
+        // --- GAME LOGIC ---
+        let gameState = {
+            streak: 0,
+            lastPlayed: null, // Date string
+            history: {} // { "2023-10-27": true/false }
+        };
+
+        const today = new Date();
+        const dayOfMonth = today.getDate(); // 1-31
+        const dateKey = today.toISOString().split('T')[0];
+        const currentQuestion = questions[dayOfMonth - 1];
+
+        // DOM Elements
+        const qText = document.getElementById('question-text');
+        const optionsGrid = document.getElementById('options-grid');
+        const dateLabel = document.getElementById('date-label');
+        const catTag = document.getElementById('category-tag');
+        const streakDisplay = document.getElementById('streak-display');
+        const feedbackArea = document.getElementById('feedback-area');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackExp = document.getElementById('feedback-explanation');
+        const feedbackIcon = document.getElementById('feedback-icon');
+        const progressBar = document.getElementById('progress-bar');
+        const shareBtn = document.getElementById('share-btn');
+        const infoBtn = document.getElementById('info-btn');
+        const modal = document.getElementById('modal');
+        const closeModal = document.getElementById('close-modal');
+
+        function init() {
+            loadProgress();
+            renderQuestion();
+            updateUI();
+        }
+
+        function loadProgress() {
+            const saved = localStorage.getItem('finlit_v1');
+            if (saved) {
+                gameState = JSON.parse(saved);
+            }
+            // Check if streak is broken (missed more than 1 day)
+            if (gameState.lastPlayed) {
+                const last = new Date(gameState.lastPlayed);
+                const diffTime = Math.abs(today - last);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if (diffDays > 1) {
+                    gameState.streak = 0;
+                }
+            }
+        }
+
+        function saveProgress() {
+            localStorage.setItem('finlit_v1', JSON.stringify(gameState));
+        }
+
+        function renderQuestion() {
+            const hasPlayedToday = gameState.history[dateKey] !== undefined;
+            
+            dateLabel.innerText = `${today.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} • Day ${dayOfMonth}/31`;
+            catTag.innerText = currentQuestion.cat;
+            qText.innerText = currentQuestion.q;
+            optionsGrid.innerHTML = '';
+
+            currentQuestion.a.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = `option-btn w-full text-left p-4 rounded-xl border-2 border-slate-700 bg-slate-800/50 hover:border-slate-500 font-medium text-sm md:text-base`;
+                btn.innerText = opt;
+                
+                if (hasPlayedToday) {
+                    btn.disabled = true;
+                    if (index === currentQuestion.c) btn.classList.add('correct');
+                    else if (gameState.history[dateKey] === index) btn.classList.add('wrong');
+                } else {
+                    btn.onclick = () => handleAnswer(index, btn);
+                }
+                
+                optionsGrid.appendChild(btn);
+            });
+
+            if (hasPlayedToday) {
+                showFeedback(gameState.history[dateKey] === currentQuestion.c);
+            }
+        }
+
+        function handleAnswer(index, btn) {
+            const isCorrect = index === currentQuestion.c;
+            gameState.history[dateKey] = index;
+            gameState.lastPlayed = dateKey;
+
+            if (isCorrect) {
+                gameState.streak++;
+                btn.classList.add('correct');
+            } else {
+                gameState.streak = 0;
+                btn.classList.add('wrong');
+                // Highlight the correct one
+                const correctBtn = optionsGrid.children[currentQuestion.c];
+                correctBtn.classList.add('correct');
+            }
+
+            // Disable all buttons
+            Array.from(optionsGrid.children).forEach(b => b.disabled = true);
+            
+            saveProgress();
+            updateUI();
+            showFeedback(isCorrect);
+        }
+
+        function showFeedback(isCorrect) {
+            feedbackArea.classList.remove('hidden');
+            feedbackTitle.innerText = isCorrect ? "Excellent!" : "Not quite...";
+            feedbackIcon.innerText = isCorrect ? "💰" : "📚";
+            feedbackExp.innerText = currentQuestion.exp;
+            
+            if (isCorrect) {
+                feedbackArea.classList.add('border-emerald-500');
+            } else {
+                feedbackArea.classList.add('border-red-500');
+            }
+            
+            // Scroll to feedback
+            setTimeout(() => {
+                feedbackArea.scrollIntoView({ behavior: 'smooth' });
+            }, 300);
+        }
+
+        function updateUI() {
+            streakDisplay.innerText = gameState.streak;
+            const progress = (dayOfMonth / 31) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        // --- SHARE SYSTEM ---
+        shareBtn.onclick = () => {
+            const isCorrect = gameState.history[dateKey] === currentQuestion.c;
+            const resultEmoji = isCorrect ? '🟩' : '🟥';
+            const streakEmoji = '🔥'.repeat(Math.min(gameState.streak, 5));
+            
+            const shareText = `FinLit 31 - Day ${dayOfMonth}\n${resultEmoji} Daily Challenge\n${streakEmoji} Streak: ${gameState.streak}\n\n#FinLit31 #FinancialLiteracy`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'FinLit 31',
+                    text: shareText
+                }).catch(() => copyFallback(shareText));
+            } else {
+                copyFallback(shareText);
+            }
+        };
+
+        function copyFallback(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-24');
+            setTimeout(() => toast.classList.add('translate-y-24'), 2000);
+        }
+
+        // --- MODAL ---
+        infoBtn.onclick = () => modal.classList.remove('hidden');
+        closeModal.onclick = () => modal.classList.add('hidden');
+        modal.onclick = (e) => { if(e.target === modal) modal.classList.add('hidden'); };
+
+        // Start
+        init();
+    </script>
+</body>
+</html>
