@@ -84,7 +84,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-4 pt-20">
+<body class="min-h-screen flex flex-col items-center p-4 pt-10">
 
     <!-- Header Landmark -->
     <header class="w-full max-w-md flex justify-between items-center py-6 mb-4" role="banner">
@@ -93,7 +93,8 @@
                 <i class="fas fa-university text-white text-xl"></i>
             </div>
             <div>
-                <h1 class="text-2xl font-bold tracking-tight leading-none">FINLIT <span style="color: #ff4d4d;">31</span></h1>
+                <!-- Changed to p tag since parent page provides H1 -->
+                <p class="text-2xl font-bold tracking-tight leading-none serif-font">FINLIT <span style="color: #ff4d4d;">31</span></p>
                 <p class="text-[10px] uppercase tracking-[0.2em] text-slate-300 font-bold">College of Business</p>
             </div>
         </div>
@@ -183,7 +184,6 @@
     </div>
 
     <script>
-        // DATA: Same as previous version, verified for clarity
         const questions = [
             { q: "What is 'Compound Interest'?", a: ["Interest earned on both principal and accumulated interest", "Interest earned only on the initial principal", "A flat fee for borrowing money", "The total cost of a loan over 30 years"], c: 0, cat: "Basics", exp: "Compound interest is the addition of interest to the principal sum of a loan or deposit, or in other words, interest on interest." },
             { q: "Which of these is a 'Liquid Asset'?", a: ["Real Estate", "A 401(k) retirement account", "Cash in a savings account", "A vintage car collection"], c: 2, cat: "Banking", exp: "Liquidity describes the degree to which an asset can be quickly bought or sold in the market at a price reflecting its intrinsic value." },
@@ -314,7 +314,6 @@
             document.getElementById('feedback-icon').innerText = isCorrect ? "📊" : "⚖️";
             document.getElementById('feedback-explanation').innerText = currentQuestion.exp;
             
-            // Reduced auto-scroll behavior to only move if necessary
             setTimeout(() => {
                 feedbackArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }, 300);
@@ -352,7 +351,6 @@
             setTimeout(() => toast.classList.add('translate-y-24'), 2500);
         }
 
-        // Focus management for Modal
         let lastFocusedElement;
         infoBtn.onclick = () => {
             lastFocusedElement = document.activeElement;
@@ -365,7 +363,6 @@
             if (lastFocusedElement) lastFocusedElement.focus();
         };
 
-        // Trap focus in modal
         modal.addEventListener('keydown', (e) => {
             if (e.key === 'Tab') {
                 e.preventDefault();
